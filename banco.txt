@@ -1,0 +1,50 @@
+  background: radial-gradient(ellipse at bottom, #1B2735 0%, #12141d 100%);
+
+
+-- Tabela de Usuários
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    senha VARCHAR(255) NOT NULL
+);
+
+-- Tabela de Músicas
+CREATE TABLE musicas (
+    id SERIAL PRIMARY KEY,
+    titulo VARCHAR(100) NOT NULL,
+    genero VARCHAR(50),
+    duracao INTERVAL,
+    link VARCHAR(255) NOT NULL
+);
+
+-- Tabela de Playlists
+CREATE TABLE playlists (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    proprietario INT REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+-- Tabela de associação entre Playlists e Músicas (muitas para muitas)
+CREATE TABLE playlist_musicas (
+    playlist_id INT REFERENCES playlists(id) ON DELETE CASCADE,
+    musica_id INT REFERENCES musicas(id) ON DELETE CASCADE,
+    PRIMARY KEY (playlist_id, musica_id)
+);
+
+-- Tabela para histórico de reprodução
+CREATE TABLE historico_reproducao (
+    id SERIAL PRIMARY KEY,
+    usuario_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
+    musica_id INT REFERENCES musicas(id) ON DELETE CASCADE,
+    data_reproducao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela para Player de Música (estado atual da reprodução)
+CREATE TABLE player_musica (
+    id SERIAL PRIMARY KEY,
+    usuario_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
+    musica_atual INT REFERENCES musicas(id),
+    tempo_reproducao INTERVAL DEFAULT '0 seconds',
+    status VARCHAR(20) DEFAULT 'paused' -- Valores possíveis: 'playing', 'paused', 'stopped'
+);
